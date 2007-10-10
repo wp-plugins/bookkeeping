@@ -12,10 +12,10 @@ $bookkeeping_version = '0.1';
 
 add_action('admin_menu', 'bookkeeping_menus');
 function bookkeeping_menus() {
-    add_menu_page('Bookkeeping', 'Bookkeeping', 10, __FILE__, 'bookkeeping_overview');
-    add_submenu_page(__FILE__, 'Payments', 'Payments', 10, 'payments', 'bookkeeping_payments');
-    add_submenu_page(__FILE__, 'Receipts', 'Receipts', 10, 'receipts', 'bookkeeping_receipts');
-    add_submenu_page(__FILE__, 'Invoices', 'Invoices', 10, 'invoices', 'bookkeeping_invoices');
+    add_menu_page('Bookkeeping', 'Bookkeeping', 10, 'bookkeeping/bookkeeping.php', 'bookkeeping_overview');
+    add_submenu_page('bookkeeping/bookkeeping.php', 'Payments', 'Payments', 10, 'bookkeeping_payments', 'bookkeeping_payments');
+    add_submenu_page('bookkeeping/bookkeeping.php', 'Receipts', 'Receipts', 10, 'bookkeeping_receipts', 'bookkeeping_receipts');
+    add_submenu_page('bookkeeping/bookkeeping.php', 'Invoices', 'Invoices', 10, 'bookkeeping_invoices', 'bookkeeping_invoices');
 }
 
 function bookkeeping_overview() {
