@@ -3,19 +3,19 @@
 Plugin Name: Bookkeeping
 Plugin URI: http://samwilson.id.au/plugins/bookkeeping/
 Description: A personal financial bookkeeping system.
-Version: 0.2
+Version: 0.3
 Author: Sam Wilson
 Author URI: http://samwilson.id.au/
 */
 
-$bookkeeping_version = '0.2';
+$bookkeeping_version = '0.3';
 
 add_action('admin_menu', 'bookkeeping_menus');
 function bookkeeping_menus() {
-    add_menu_page('Bookkeeping', 'Bookkeeping', 10, 'bookkeeping/bookkeeping.php', 'bookkeeping_overview');
-    add_submenu_page('bookkeeping/bookkeeping.php', 'Payments', 'Payments', 10, 'bookkeeping_payments', 'bookkeeping_payments');
-    add_submenu_page('bookkeeping/bookkeeping.php', 'Receipts', 'Receipts', 10, 'bookkeeping_receipts', 'bookkeeping_receipts');
-    add_submenu_page('bookkeeping/bookkeeping.php', 'Invoices', 'Invoices', 10, 'bookkeeping_invoices', 'bookkeeping_invoices');
+	add_menu_page('Bookkeeping', 'Bookkeeping', 'administrator', 'bookkeeping/bookkeeping.php', 'bookkeeping_overview');
+	add_submenu_page('bookkeeping/bookkeeping.php', 'Payments', 'Payments', 'administrator', 'bookkeeping_payments', 'bookkeeping_payments');
+	add_submenu_page('bookkeeping/bookkeeping.php', 'Receipts', 'Receipts', 'administrator', 'bookkeeping_receipts', 'bookkeeping_receipts');
+	add_submenu_page('bookkeeping/bookkeeping.php', 'Invoices', 'Invoices', 'administrator', 'bookkeeping_invoices', 'bookkeeping_invoices');
 }
 
 function bookkeeping_overview() {
@@ -108,11 +108,12 @@ function bookkeeping_adminhead() {
 }
 
 function _bookkeeping_get_journal_header() {
-    if (!$_GET['y']) $curr_year=date('Y');  else $curr_year=$_GET['y'];
-    if (!$_GET['m']) $curr_month=date('m'); else $curr_month=$_GET['m'];
-    $next_year = $curr_year+1;
-    $prev_year = $curr_year-1;
-    
+
+	$curr_year = (isset($_GET['y'])) ? $_GET['y'] : date('Y');
+	$curr_month = (isset($_GET['m'])) ? $_GET['m'] : date('m');
+	$next_year = $curr_year + 1;
+	$prev_year = $curr_year - 1;
+
     // Build labels
     if ($curr_month>6) {
         $prev_label = substr($curr_year-1,2).'/'.substr($curr_year,2);
@@ -124,12 +125,12 @@ function _bookkeeping_get_journal_header() {
         $next_label = substr($curr_year,2).'/'.substr($curr_year+1,2);
     }
 
-    $base_uri = $_SERVER['SCRIPT_URI']."?page=".$_GET['page'];
+    $base_uri = admin_url("admin.php?page=".$_GET['page']);
     $out = "<div class='bookkeeping-journal-nav'>
         <p>
-        <span class='prev'><a href='$base_uri&y=$prev_year&m=".$_GET['m']."'>&laquo; $prev_label</a></span>
+        <span class='prev'><a href='$base_uri&y=$prev_year&m=".$curr_month."'>&laquo; $prev_label</a></span>
         <strong class='curr'>$curr_label</strong>
-        <span class='next'><a href='$base_uri&y=$next_year&m=".$_GET['m']."'>$next_label &raquo;</a></span>
+        <span class='next'><a href='$base_uri&y=$next_year&m=".$curr_month."'>$next_label &raquo;</a></span>
         </p>";
     $months = array(7=>'Jul',8=>'Aug',9=>'Sep',10=>'Oct',11=>'Nov',12=>'Dec',1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'May',6=>'Jun');
     $out .= "<ol>";
@@ -149,13 +150,13 @@ function _bookkeeping_get_journal($transaction_type) {
     global $wpdb;
     $table_name = $wpdb->prefix."bookkeeping_journal";
 
-   	if ($_POST['add']) {
-   		_bookkeeping_add_journal_entry($_POST);
-    }
-    
-    if (!$_GET['y']) $curr_year=date('Y');  else $curr_year=$_GET['y'];
-    if (!$_GET['m']) $curr_month=date('m'); else $curr_month=$_GET['m'];
-    
+	if (isset($_POST['add'])) {
+		_bookkeeping_add_journal_entry($_POST);
+	}
+
+	$curr_year = (isset($_GET['y'])) ? $_GET['y'] : date('Y');
+	$curr_month = (isset($_GET['m'])) ? $_GET['m'] : date('m');
+
     // Categories
     $cats = _bookkeeping_get_categories($transaction_type);
     $cat_headers = "";
@@ -195,20 +196,14 @@ function _bookkeeping_get_journal($transaction_type) {
     // Column totals:
     $table .= "<tr class='bottomhead'><th colspan='2'>Totals:</th>";
     foreach ($cats as $cat) {
-        $sql = "SELECT date, category, SUM(amount) AS total FROM $table_name
+        $sql = "SELECT SUM(amount) AS total FROM $table_name
             WHERE transaction_type='$transaction_type' AND MONTH(date)='$curr_month' AND YEAR(date)='$curr_year'
             AND category='$cat' GROUP BY category";
-        $cattotal = $wpdb->get_row($sql);
-        $table .= "<th style=''>".$cattotal->total."</th>";
+        $table .= "<th>".$wpdb->get_var($sql)."</th>";
     }
-    $total_business_use = 0;
     $sql = "SELECT SUM((1-(private_use_component/100))*amount) AS total FROM $table_name
             WHERE transaction_type='$transaction_type' AND MONTH(date)='$curr_month' AND YEAR(date)='$curr_year'";
-    $result = mysql_query($sql);
-    if ($result) {
-        $total_business_use = mysql_fetch_assoc($result);
-        $total_business_use = number_format($total_business_use['total'],2);
-    }
+    $total_business_use = number_format($wpdb->get_var($sql), 2);
     $table .= "<th></th><th></th><th></th><th>$total_business_use</th></tr>";
 
     $cat_colspan = round(count($cats)/2);
@@ -263,24 +258,26 @@ function _bookkeeping_get_categories($transaction_type) {
 } // _bookkeeping_get_categories($transaction_type)
 
 function _bookkeeping_add_journal_entry($data) {
-    global $wpdb;
-    $table_name = $wpdb->prefix."bookkeeping_journal";
-    
-	if ($data['has_receipt_or_invoice']=='on') {
-		$data['has_receipt_or_invoice']=1;
+	global $wpdb;
+
+	if (isset($data['has_receipt_or_invoice']) && $data['has_receipt_or_invoice']=='on') {
+		$data['has_receipt_or_invoice'] = 1;
 	} else {
 		$data['has_receipt_or_invoice'] = 0;
 	}
-	$sql = "INSERT INTO $table_name SET
-		transaction_type = '".$wpdb->escape($data['transaction_type'])."',
-		date             = '".$wpdb->escape($data['date'])."',
-		category         = '".$wpdb->escape($data['category'])."',
-		method           = '".$wpdb->escape($data['method'])."',
-		has_receipt_or_invoice = '".$wpdb->escape($data['has_receipt_or_invoice'])."',
-		amount           = '".$wpdb->escape($data['amount'])."',
-		private_use_component = '".$wpdb->escape($data['private_use_component'])."',
-		comments         = '".$wpdb->escape($data['comments'])."'";
-	return $wpdb->query($sql);
+
+	$data = array(
+		'transaction_type' => $data['transaction_type'],
+		'date' => $data['date'],
+		'category' => $data['category'],
+		'method' => $data['method'],
+		'has_receipt_or_invoice' => $data['has_receipt_or_invoice'],
+		'amount' => $data['amount'],
+		'private_use_component' => $data['private_use_component'],
+		'comments' => $data['comments'],
+	);
+	$wpdb->insert($wpdb->prefix.'bookkeeping_journal', $data);
+
 } // end _bookkeeping_add_journal_entry()
 
 
