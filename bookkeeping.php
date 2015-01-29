@@ -90,8 +90,8 @@ function bookkeeping_adminhead() {
     div.bookkeeping-journal-nav p {text-align:center}
     div.bookkeeping-journal-nav ol {list-style-type:none; border-bottom:1px solid #ccc; width:100%}
     div.bookkeeping-journal-nav li {display:inline}
-    div.bookkeeping-journal-nav li a {padding:0 1em; border:1px solid #ccc; margin:0 0.3em; position:relative;
-                                      bottom:0px}
+    div.bookkeeping-journal-nav li a {padding:0 1em; border:1px solid #ccc; margin:0 0.3em;
+        position:relative; text-decoration:none}
     div.bookkeeping-journal-nav li.curr a {border-bottom-color:#f1f1f1}
     div.bookkeeping-journal-nav li a:hover {background-color:#DDEAF4}
     
