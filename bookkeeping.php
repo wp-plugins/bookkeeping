@@ -1,14 +1,14 @@
 <?php
 /*
 Plugin Name: Bookkeeping
-Plugin URI: http://samwilson.id.au/blog/bookkeeping-plugin
+Plugin URI: http://samwilson.id.au/plugins/bookkeeping/
 Description: A personal financial bookkeeping system.
-Version: 0.1
+Version: 0.2
 Author: Sam Wilson
 Author URI: http://samwilson.id.au/
 */
 
-$bookkeeping_version = '0.1';
+$bookkeeping_version = '0.2';
 
 add_action('admin_menu', 'bookkeeping_menus');
 function bookkeeping_menus() {
@@ -76,7 +76,7 @@ function bookkeeping_invoices() {
         To: <?php echo addressbook_getselect('to-address'); ?>
         <input type="submit" value="Generate Invoice" />
         </form>
-        </div><?
+        </div><?php
     }
 }
 
@@ -91,8 +91,8 @@ function bookkeeping_adminhead() {
     div.bookkeeping-journal-nav ol {list-style-type:none; border-bottom:1px solid #ccc; width:100%}
     div.bookkeeping-journal-nav li {display:inline}
     div.bookkeeping-journal-nav li a {padding:0 1em; border:1px solid #ccc; margin:0 0.3em; position:relative;
-                                      bottom:-1px}
-    div.bookkeeping-journal-nav li.curr a {border-bottom:1px solid white}
+                                      bottom:0px}
+    div.bookkeeping-journal-nav li.curr a {border-bottom-color:#f1f1f1}
     div.bookkeeping-journal-nav li a:hover {background-color:#DDEAF4}
     
     table.bookkeeping-journal {border-collapse:collapse; margin:auto; border:1px solid red; width:98%}
@@ -201,10 +201,14 @@ function _bookkeeping_get_journal($transaction_type) {
         $cattotal = $wpdb->get_row($sql);
         $table .= "<th style=''>".$cattotal->total."</th>";
     }
+    $total_business_use = 0;
     $sql = "SELECT SUM((1-(private_use_component/100))*amount) AS total FROM $table_name
             WHERE transaction_type='$transaction_type' AND MONTH(date)='$curr_month' AND YEAR(date)='$curr_year'";
-    $total_business_use = mysql_fetch_assoc(mysql_query($sql));
-    $total_business_use = number_format($total_business_use['total'],2);
+    $result = mysql_query($sql);
+    if ($result) {
+        $total_business_use = mysql_fetch_assoc($result);
+        $total_business_use = number_format($total_business_use['total'],2);
+    }
     $table .= "<th></th><th></th><th></th><th>$total_business_use</th></tr>";
 
     $cat_colspan = round(count($cats)/2);
@@ -251,6 +255,7 @@ function _bookkeeping_get_categories($transaction_type) {
     $table_name = $wpdb->prefix."bookkeeping_journal";
     $sql = "SELECT category FROM $table_name WHERE transaction_type='$transaction_type' GROUP BY category";
     $results = $wpdb->get_results($sql);
+    $cats = array();
     foreach ($results as $cat) {
         $cats[] = $cat->category;
     }
@@ -278,6 +283,8 @@ function _bookkeeping_add_journal_entry($data) {
 	return $wpdb->query($sql);
 } // end _bookkeeping_add_journal_entry()
 
+
+register_activation_hook(__FILE__, '_bookkeeping_install');
 function _bookkeeping_install() {
     global $wpdb, $bookkeeping_version;
     $table_name = $wpdb->prefix."bookkeeping_journal";
@@ -297,5 +304,3 @@ function _bookkeeping_install() {
     dbDelta($sql);
     update_option('bookkeeping_version', $bookkeeping_version);
 }
-
-?>
