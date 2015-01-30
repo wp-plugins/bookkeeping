@@ -3,12 +3,12 @@
 Plugin Name: Bookkeeping
 Plugin URI: http://samwilson.id.au/plugins/bookkeeping/
 Description: A personal financial bookkeeping system.
-Version: 0.3
+Version: 0.4
 Author: Sam Wilson
 Author URI: http://samwilson.id.au/
 */
 
-$bookkeeping_version = '0.3';
+$bookkeeping_version = '0.4';
 
 add_action('admin_menu', 'bookkeeping_menus');
 function bookkeeping_menus() {

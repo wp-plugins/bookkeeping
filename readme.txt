@@ -4,7 +4,7 @@ Donate link:
 Tags: bookkeeping, financial, money, personal
 Requires at least: 4.1
 Tested up to: 4.1
-Stable tag: 0.3
+Stable tag: 0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,11 +18,7 @@ under which you can enter payment and receipt data, view monthly summaries, and 
 
 == Changelog ==
 
-= 0.3 =
-* Fixed a number of defects related to upgrading to WP 4.1.
-
-= 0.2 =
-* Updated to work with WordPress 4.1.
-
-= 0.1 =
-* First draft.
+* 0.4: Corrected summary table total calculations.
+* 0.3: Fixed a number of defects related to upgrading to WP 4.1.
+* 0.2: Updated to work with WordPress 4.1.
+* 0.1: First draft.
