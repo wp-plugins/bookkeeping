@@ -29,31 +29,29 @@ function bookkeeping_overview() {
 } // end function bookkeeping_overview()
 
 function _bookkeeping_print_summary_table($transaction_type) {
-    global $wpdb;
-    $table_name = $wpdb->prefix."bookkeeping_journal";
-    $cats = _bookkeeping_get_categories($transaction_type);
+	global $wpdb;
+	$table_name = $wpdb->prefix . "bookkeeping_journal";
+	$cats = _bookkeeping_get_categories($transaction_type);
 
-    echo '<table class="bookkeeping-journal">
-    <tr class="tophead"><th></th>';
-    foreach ($cats as $cat) {
-    	echo "<th>$cat</th>";
-    }
-    echo "<th>Totals</th></tr>";
-    $sql = "SELECT MONTHNAME(date) AS month, YEAR(date) AS year, SUM(amount) AS total
-    FROM $table_name WHERE transaction_type='$transaction_type' GROUP BY MONTHNAME(date) ORDER BY date DESC";
-    $results = $wpdb->get_results($sql);
-    foreach ($results as $month) {
-        echo "<tr><td>".$month->month." ".$month->year."</td>";
-        foreach ($cats as $cat) {
-            $sql = "SELECT date, category, SUM(amount) AS total FROM $table_name
-                WHERE transaction_type='$transaction_type' AND MONTHNAME(date)='".$month->month."'
-                AND category='$cat' GROUP BY category";
-            $cattotal = $wpdb->get_row($sql);
-            echo "<td>".$cattotal->total."</td>";
-        }
-        echo "<td>".$month->total."</td></tr>";
-    }
-    echo "<tr class='last-row'><td colspan='".(count($cats)+2)."'></td></tr></table>";
+	echo '<table class="bookkeeping-journal"><tr class="tophead"><th></th>';
+	foreach ($cats as $cat) {
+		echo "<th>$cat</th>";
+	}
+	echo "<th>Totals</th></tr>";
+	$sql = "SELECT MONTHNAME(date) AS month, YEAR(date) AS year, SUM(amount) AS total
+	FROM $table_name WHERE transaction_type='$transaction_type' GROUP BY MONTHNAME(date) ORDER BY date DESC";
+	$results = $wpdb->get_results($sql);
+	foreach ($results as $month) {
+		echo "<tr><td>" . $month->month . " " . $month->year . "</td>";
+		foreach ($cats as $cat) {
+			$sql = "SELECT SUM(amount) FROM $table_name
+				WHERE transaction_type='$transaction_type' AND MONTHNAME(date)='" . $month->month . "'
+				AND category='$cat' GROUP BY category";
+			echo "<td>" . $wpdb->get_var($sql) . "</td>";
+		}
+		echo "<td>" . $month->total . "</td></tr>";
+	}
+	echo "<tr class='last-row'><td colspan='".(count($cats)+2)."'></td></tr></table>";
 }
 
 function bookkeeping_payments() {
