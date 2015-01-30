@@ -3,12 +3,12 @@
 Plugin Name: Bookkeeping
 Plugin URI: http://samwilson.id.au/plugins/bookkeeping/
 Description: A personal financial bookkeeping system.
-Version: 0.4
+Version: 0.5
 Author: Sam Wilson
 Author URI: http://samwilson.id.au/
 */
 
-$bookkeeping_version = '0.4';
+$bookkeeping_version = '0.5';
 
 add_action('admin_menu', 'bookkeeping_menus');
 function bookkeeping_menus() {
@@ -38,15 +38,17 @@ function _bookkeeping_print_summary_table($transaction_type) {
 		echo "<th>$cat</th>";
 	}
 	echo "<th>Totals</th></tr>";
-	$sql = "SELECT MONTHNAME(date) AS month, YEAR(date) AS year, SUM(amount) AS total
-	FROM $table_name WHERE transaction_type='$transaction_type' GROUP BY MONTHNAME(date) ORDER BY date DESC";
+	$sql = "SELECT MONTHNAME(date) AS month, YEAR(date) AS year, SUM(amount) AS total"
+		. " FROM $table_name WHERE transaction_type='$transaction_type'"
+		. " GROUP BY YEAR(date), MONTHNAME(date) ORDER BY date DESC";
 	$results = $wpdb->get_results($sql);
 	foreach ($results as $month) {
 		echo "<tr><td>" . $month->month . " " . $month->year . "</td>";
 		foreach ($cats as $cat) {
-			$sql = "SELECT SUM(amount) FROM $table_name
-				WHERE transaction_type='$transaction_type' AND MONTHNAME(date)='" . $month->month . "'
-				AND category='$cat' GROUP BY category";
+			$sql = "SELECT SUM(amount) FROM $table_name"
+				." WHERE transaction_type='$transaction_type'"
+				." AND YEAR(date)=$month->year AND MONTHNAME(date)='$month->month'"
+				." AND category='$cat' GROUP BY category";
 			echo "<td>" . $wpdb->get_var($sql) . "</td>";
 		}
 		echo "<td>" . $month->total . "</td></tr>";
