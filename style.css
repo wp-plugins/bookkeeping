@@ -1,0 +1,17 @@
+div.bookkeeping-journal-nav {margin:1em auto}
+div.bookkeeping-journal-nav p {text-align:center}
+div.bookkeeping-journal-nav ol {list-style-type:none; border-bottom:1px solid #ccc; width:100%}
+div.bookkeeping-journal-nav li {display:inline}
+div.bookkeeping-journal-nav li a {padding:0 1em; border:1px solid #ccc; margin:0 0.3em;
+								  position:relative; text-decoration:none}
+div.bookkeeping-journal-nav li.curr a {border-bottom-color:#f1f1f1}
+div.bookkeeping-journal-nav li a:hover {background-color:#DDEAF4}
+
+table.bookkeeping-journal {border-collapse:collapse; margin:auto; border:1px solid red; width:98%}
+table.bookkeeping-journal td {border-bottom:1px solid lightblue; border-left:1px solid red; 
+							  border-right:1px solid red; width:auto; padding:0; margin:0; text-align:right}
+table.bookkeeping-journal tr.tophead th {border-bottom:3px double red; border-top:1px solid red}
+table.bookkeeping-journal tr.bottomhead th {border-top:3px double red; border-bottom:1px solid red; text-align:right}
+table.bookkeeping-journal tr.last-row td {border-bottom:1px solid red}
+table.bookkeeping-journal input {width:98%; margin:0 auto; border:0; background-color:inherit}
+table.bookkeeping-journal input.checkbox {width:auto; margin:auto}
