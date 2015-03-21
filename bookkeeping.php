@@ -3,12 +3,12 @@
 Plugin Name: Bookkeeping
 Plugin URI: http://samwilson.id.au/plugins/bookkeeping/
 Description: A personal financial bookkeeping system.
-Version: 0.5.1
+Version: 0.5.2
 Author: Sam Wilson
 Author URI: http://samwilson.id.au/
 */
 
-$bookkeeping_version = '0.5.1';
+$bookkeeping_version = '0.5.2';
 
 add_action( 'admin_menu', 'bookkeeping_menus' );
 function bookkeeping_menus() {
@@ -80,31 +80,9 @@ function bookkeeping_invoices() {
 	}
 }
 
-add_action( 'admin_head', 'bookkeeping_adminhead' );
-function bookkeeping_adminhead() {
-	date_default_timezone_set( 'Australia/Canberra' );
-
-	echo '<style type="text/css">
-	
-	div.bookkeeping-journal-nav {margin:1em auto}
-	div.bookkeeping-journal-nav p {text-align:center}
-	div.bookkeeping-journal-nav ol {list-style-type:none; border-bottom:1px solid #ccc; width:100%}
-	div.bookkeeping-journal-nav li {display:inline}
-	div.bookkeeping-journal-nav li a {padding:0 1em; border:1px solid #ccc; margin:0 0.3em;
-		position:relative; text-decoration:none}
-	div.bookkeeping-journal-nav li.curr a {border-bottom-color:#f1f1f1}
-	div.bookkeeping-journal-nav li a:hover {background-color:#DDEAF4}
-	
-	table.bookkeeping-journal {border-collapse:collapse; margin:auto; border:1px solid red; width:98%}
-	table.bookkeeping-journal td {border-bottom:1px solid lightblue; border-left:1px solid red; 
-		border-right:1px solid red; width:auto; padding:0; margin:0; text-align:right}
-	table.bookkeeping-journal tr.tophead th {border-bottom:3px double red; border-top:1px solid red}
-	table.bookkeeping-journal tr.bottomhead th {border-top:3px double red; border-bottom:1px solid red; text-align:right}
-	table.bookkeeping-journal tr.last-row td {border-bottom:1px solid red}
-	table.bookkeeping-journal input {width:98%; margin:0 auto; border:0; background-color:inherit}
-	table.bookkeeping-journal input.checkbox {width:auto; margin:auto}
-	
-	</style>';
+add_action('admin_enqueue_scripts', 'bookkeeping_admin_enqueue_scripts');
+function bookkeeping_admin_enqueue_scripts() {
+	wp_enqueue_style('bookkeeping', plugins_url('style.css', __FILE__));
 }
 
 function _bookkeeping_get_journal_header() {
